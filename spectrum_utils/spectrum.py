@@ -53,9 +53,7 @@ class MsmsSpectrumJit:
         self.precursor_mz = precursor_mz
         self.precursor_charge = precursor_charge
         if not _skip_checks and len(mz) != len(intensity):
-            raise ValueError(
-                "The m/z and intensity arrays should have equal lengths"
-            )
+            raise ValueError("The m/z and intensity arrays should have equal lengths")
         self._mz = np.asarray(mz, np.float64).reshape(-1)
         # Make sure the peaks are sorted by m/z.
         self._intensity = np.asarray(intensity, np.float32).reshape(-1)
@@ -72,9 +70,10 @@ class MsmsSpectrumJit:
     def intensity(self) -> np.ndarray:
         return self._intensity
 
-    def round(
-        self, decimals: int = 0, combine: str = "sum"
-    ) -> "MsmsSpectrumJit":
+    def round(self, decimals: int = 0, combine: str = "sum") -> "MsmsSpectrumJit":
+        if len(self._mz) == 0 or len(self._intensity) == 0:
+            return self
+
         mz_round = np.round_(self._mz, decimals, np.empty_like(self._mz))
         mz_unique = np.unique(mz_round)
         if len(mz_unique) == len(mz_round):
@@ -88,8 +87,7 @@ class MsmsSpectrumJit:
                 # Check whether subsequent mz values got merged.
                 while (
                     i_orig + offset < len(mz_round)
-                    and abs(mz_unique[i_unique] - mz_round[i_orig + offset])
-                    <= 1e-06
+                    and abs(mz_unique[i_unique] - mz_round[i_orig + offset]) <= 1e-06
                 ):
                     offset += 1
                 # Combine the corresponding intensities.
@@ -106,7 +104,11 @@ class MsmsSpectrumJit:
     def set_mz_range(
         self, min_mz: Optional[float] = None, max_mz: Optional[float] = None
     ) -> "MsmsSpectrumJit":
-        if min_mz is None and max_mz is None:
+        if (
+            (min_mz is None and max_mz is None)
+            or len(self._mz) == 0
+            or len(self._intensity) == 0
+        ):
             return self
         else:
             if min_mz is None:
@@ -130,11 +132,12 @@ class MsmsSpectrumJit:
         fragment_tol_mode: str,
         isotope: int = 0,
     ) -> MsmsSpectrumJit:
+        if len(self._mz) == 0 or len(self._intensity) == 0:
+            return self
+
         # TODO: This assumes [M+H]x charged ions.
         adduct_mass = 1.007825
-        neutral_mass = (
-            self.precursor_mz - adduct_mass
-        ) * self.precursor_charge
+        neutral_mass = (self.precursor_mz - adduct_mass) * self.precursor_charge
         c_mass_diff = 1.003355
         remove_mz = [
             (neutral_mass + iso * c_mass_diff) / charge + adduct_mass
@@ -160,6 +163,9 @@ class MsmsSpectrumJit:
     def filter_intensity(
         self, min_intensity: float = 0.0, max_num_peaks: Optional[int] = None
     ) -> "MsmsSpectrumJit":
+        if len(self._mz) == 0 or len(self._intensity) == 0:
+            return self
+
         if max_num_peaks is None:
             max_num_peaks = len(self._intensity)
 
@@ -173,9 +179,7 @@ class MsmsSpectrumJit:
             start_i += 1
         # Only retain at most the `max_num_peaks` most intense peaks.
         mask = np.full_like(self._intensity, False, np.bool_)
-        mask[
-            intensity_idx[max(start_i, len(intensity_idx) - max_num_peaks) :]
-        ] = True
+        mask[intensity_idx[max(start_i, len(intensity_idx) - max_num_peaks) :]] = True
         self._mz, self._intensity = self._mz[mask], self._intensity[mask]
         return self
 
@@ -188,13 +192,11 @@ class MsmsSpectrumJit:
         max_rank: Optional[int] = None,
     ) -> "MsmsSpectrumJit":
         if scaling == "root":
-            self._intensity = np.power(self._intensity, 1 / degree).astype(
+            self._intensity = np.power(self._intensity, 1 / degree).astype(np.float32)
+        elif scaling == "log":
+            self._intensity = (np.log1p(self._intensity) / np.log(base)).astype(
                 np.float32
             )
-        elif scaling == "log":
-            self._intensity = (
-                np.log1p(self._intensity) / np.log(base)
-            ).astype(np.float32)
         elif scaling == "rank":
             if max_rank is None:
                 max_rank = len(self._intensity)
@@ -528,9 +530,7 @@ class MsmsSpectrum:
                 'values are "Da" or "ppm".'
             )
         self.proforma, self._annotation = None, None
-        self._inner.remove_precursor_peak(
-            fragment_tol_mass, fragment_tol_mode, isotope
-        )
+        self._inner.remove_precursor_peak(fragment_tol_mass, fragment_tol_mode, isotope)
         return self
 
     def filter_intensity(
@@ -619,9 +619,7 @@ class MsmsSpectrum:
         -------
         MsmsSpectrum
         """
-        self._inner.scale_intensity(
-            scaling, max_intensity, degree, base, max_rank
-        )
+        self._inner.scale_intensity(scaling, max_intensity, degree, base, max_rank)
         return self
 
     def _annotate_proteoforms(
@@ -700,8 +698,7 @@ class MsmsSpectrum:
                 pi = fa.PeakInterpretation()
                 while (
                     fragment_i < len(fragments)
-                    and mass_diff(peak_mz, fragments[fragment_i][1])
-                    > fragment_tol_mass
+                    and mass_diff(peak_mz, fragments[fragment_i][1]) > fragment_tol_mass
                 ):
                     fragment_i += 1
                 i = 0
