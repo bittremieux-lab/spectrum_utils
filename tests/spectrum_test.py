@@ -49,7 +49,7 @@ def test_mz_array():
     mz = np.random.uniform(100, 1400, num_peaks).tolist()
     intensity = np.random.lognormal(0, 1, num_peaks)
     spec = spectrum.MsmsSpectrum("test_spectrum", 500, 2, mz, intensity)
-    assert type(spec.mz) == np.ndarray
+    assert isinstance(spec.mz, np.ndarray)
     with pytest.raises(AttributeError):
         spec.mz = np.random.uniform(100, 1400, num_peaks)
 
@@ -59,7 +59,7 @@ def test_intensity_array():
     mz = np.random.uniform(100, 1400, num_peaks)
     intensity = np.random.lognormal(0, 1, num_peaks).tolist()
     spec = spectrum.MsmsSpectrum("test_spectrum", 500, 2, mz, intensity)
-    assert type(spec.intensity) == np.ndarray
+    assert isinstance(spec.intensity, np.ndarray)
     with pytest.raises(AttributeError):
         spec.intensity = np.random.lognormal(0, 1, num_peaks)
 
