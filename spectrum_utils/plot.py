@@ -293,7 +293,7 @@ def mass_errors(
 
     Notes
     -----
-    The mass error bubble plot was first introduced in [1]_.
+    The mass error bubble plot was first introduced in [1] Barsnes, H., Eidhammer, I. and Martens, L. (2010) FragmentationAnalyzer: An open-source tool to analyze MS/MS fragmentation data. PROTEOMICS, 10, 1087–1090.
 
     References
     ----------

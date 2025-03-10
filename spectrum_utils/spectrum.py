@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import copy
 import functools
 import urllib.parse
@@ -11,7 +12,6 @@ import pyteomics.usi
 
 from spectrum_utils import fragment_annotation as fa, proforma, utils
 
-
 class GnpsBackend(pyteomics.usi._PROXIBackend):
     _url_template = (
         "https://metabolomics-usi.gnps2.org/proxi/v{version}/spectra?usi={usi}"
@@ -22,7 +22,13 @@ class GnpsBackend(pyteomics.usi._PROXIBackend):
 
 
 # Reload the Pyteomics PROXI aggregator to also include GNPS.
-pyteomics.usi._proxies["gnps"] = GnpsBackend
+# Only perform the assignment if not building docs.
+if not os.environ.get("SPHINX_BUILD"):
+    try:
+        pyteomics.usi._proxies["gnps"] = GnpsBackend
+    except Exception:
+        pass  
+
 pyteomics.usi.AGGREGATOR = pyteomics.usi.PROXIAggregator()
 
 
@@ -75,7 +81,7 @@ class MsmsSpectrumJit:
     def round(
         self, decimals: int = 0, combine: str = "sum"
     ) -> "MsmsSpectrumJit":
-        mz_round = np.round_(self._mz, decimals, np.empty_like(self._mz))
+        mz_round = np.round(self._mz, decimals, np.empty_like(self._mz))
         mz_unique = np.unique(mz_round)
         if len(mz_unique) == len(mz_round):
             self._mz = mz_unique
@@ -646,13 +652,23 @@ class MsmsSpectrum:
         (since parsing the sequence is a lot slower than annotating the
         peaks).
 
-        >>> proforma_sequence = "MYPEPTIDEK/2"
-        >>> spectrum.annotate_proforma(proforma_sequence, ...)
+        --- from spectrum_utils.spectrum import MsmsSpectrum
+        --- identifier = "test_spec"
+        --- precursor_mz = 500.0
+        --- precursor_charge = 2
+        --- mz_array = np.array([100.0, 200.0, 300.0])
+        --- intensity_array = np.array([10.0, 20.0, 30.0])
 
-        or
+            
+        --- MsmsSpectrum(identifier, precursor_mz, precursor_charge, mz_array, intensity_array)
+        --- proforma_sequence = "MYPEPTIDEK/2"
+        --- MsmsSpectrum.annotate_proforma(proforma_str =proforma_sequence, fragment_tol_mass=10.0, fragment_tol_mode ='ppm', ion_types="by")
 
-        >>> parsed_proforma = proforma.parse(proforma_sequence)
-        >>> spectrum._annotate_proteoforms(parsed_proforma, proforma_sequence, ...)
+        --- or
+
+        --- parsed_proforma = proforma.parse(proforma_sequence)
+        --- MsmsSpectrum._annotate_proteoforms(parsed_proforma, proforma_str =proforma_sequence, fragment_tol_mass=10.0, fragment_tol_mode ='ppm', ion_types="by")
+
 
         WARN:
             This function does not check that the passed sequence
@@ -704,6 +720,12 @@ class MsmsSpectrum:
                     > fragment_tol_mass
                 ):
                     fragment_i += 1
+
+                # If no more fragments are available, assign an empty annotation and continue.
+                if fragment_i >= len(fragments):
+                    self.annotation[peak_i] = pi
+                    continue
+
                 i = 0
                 while (
                     fragment_i + i < len(fragments)
