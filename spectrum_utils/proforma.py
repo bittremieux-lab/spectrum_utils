@@ -879,7 +879,8 @@ def _parse_obo(
                 elif (
                     cv_id == "XLMOD"
                     and isinstance(clause, fastobo.term.PropertyValueClause)
-                    and "monoIsotopicMass" in str(clause.property_value.relation)
+                    and "monoIsotopicMass"
+                    in str(clause.property_value.relation)
                 ):
                     term_mass = float(clause.property_value.value)
                 elif cv_id == "GNO" and isinstance(

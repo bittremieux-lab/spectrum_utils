@@ -12,6 +12,7 @@ import pyteomics.usi
 
 from spectrum_utils import fragment_annotation as fa, proforma, utils
 
+
 class GnpsBackend(pyteomics.usi._PROXIBackend):
     _url_template = (
         "https://metabolomics-usi.gnps2.org/proxi/v{version}/spectra?usi={usi}"
@@ -27,7 +28,7 @@ if not os.environ.get("SPHINX_BUILD"):
     try:
         pyteomics.usi._proxies["gnps"] = GnpsBackend
     except Exception:
-        pass  
+        pass
 
 pyteomics.usi.AGGREGATOR = pyteomics.usi.PROXIAggregator()
 
@@ -659,7 +660,7 @@ class MsmsSpectrum:
         --- mz_array = np.array([100.0, 200.0, 300.0])
         --- intensity_array = np.array([10.0, 20.0, 30.0])
 
-            
+
         --- MsmsSpectrum(identifier, precursor_mz, precursor_charge, mz_array, intensity_array)
         --- proforma_sequence = "MYPEPTIDEK/2"
         --- MsmsSpectrum.annotate_proforma(proforma_str =proforma_sequence, fragment_tol_mass=10.0, fragment_tol_mode ='ppm', ion_types="by")
