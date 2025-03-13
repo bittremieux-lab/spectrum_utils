@@ -32,9 +32,20 @@ release = spectrum_utils.__version__
 
 
 # -- General configuration ---------------------------------------------------
+os.environ["SPHINX_BUILD"] = "1"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = "1.0"
+# conf.py
+
+# ... other configuration options ...
+
+# Global setup for doctests: this code is executed before any doctest example.
+doctest_global_setup = """
+from spectrum_utils import spectrum, proforma
+import matplotlib
+"""
+
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -44,11 +55,16 @@ extensions = [
     "sphinx_markdown_tables",  # Support tables in Markdown.
     "sphinx.ext.autodoc",  # Include documentation from docstrings.
     # "sphinx.ext.autosummary",  # Generate documentation summary one-liners.
-    # "sphinx.ext.doctest",  # Test code in the documentation.
+    "sphinx.ext.doctest",  # Test code in the documentation.
     # "sphinx.ext.coverage",  # Collect documentation coverage statistics.
     "sphinx.ext.napoleon",  # Support NumPy and Google style docstrings.
     "sphinx.ext.viewcode",  # Add links to the source code.
     "sphinx_rtd_theme",  # Read-the-docs theme.
+]
+
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
 ]
 
 # Generate documentation from all docstrings.

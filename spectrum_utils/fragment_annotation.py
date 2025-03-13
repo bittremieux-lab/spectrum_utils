@@ -408,7 +408,7 @@ def get_theoretical_fragments(
                     (
                         fragment_sequence,
                         "b",
-                        f"{start_i+1}:{stop_i+1}",
+                        f"{start_i + 1}:{stop_i + 1}",
                         mod_mass,
                     )
                 )

@@ -400,12 +400,12 @@ class ProFormaTransformer(lark.Transformer):
         self._sequence.append(tree[0])
         # An amino acid token can be followed by (i) a modification on that
         # residue, or (ii) a label (linking it to another modified residue).
-        if isinstance(tree[1], Label):
+        if len(tree) > 1 and isinstance(tree[1], Label):
             # noinspection PyArgumentList
             self._modifications.append(
                 Modification(position=position, label=tree[1])
             )
-        elif isinstance(tree[1], Modification):
+        elif len(tree) > 1 and isinstance(tree[1], Modification):
             tree[1].position = position
             self._modifications.append(tree[1])
 
@@ -879,10 +879,8 @@ def _parse_obo(
                 elif (
                     cv_id == "XLMOD"
                     and isinstance(clause, fastobo.term.PropertyValueClause)
-                    and (
-                        clause.property_value.relation.prefix
-                        == "monoIsotopicMass"
-                    )
+                    and "monoIsotopicMass"
+                    in str(clause.property_value.relation)
                 ):
                     term_mass = float(clause.property_value.value)
                 elif cv_id == "GNO" and isinstance(
