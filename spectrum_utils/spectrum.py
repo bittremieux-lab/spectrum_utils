@@ -75,7 +75,7 @@ class MsmsSpectrumJit:
     def round(
         self, decimals: int = 0, combine: str = "sum"
     ) -> "MsmsSpectrumJit":
-        mz_round = np.round_(self._mz, decimals, np.empty_like(self._mz))
+        mz_round = np.round(self._mz, decimals=decimals)
         mz_unique = np.unique(mz_round)
         if len(mz_unique) == len(mz_round):
             self._mz = mz_unique
