@@ -326,8 +326,10 @@ def test_get_theoretical_fragments_neutral_loss():
         assert fragment_mz == pytest.approx(
             fragments[
                 f"""{annotation.ion_type}^{annotation.charge}{
-                annotation.neutral_loss if annotation.neutral_loss is not None
-                else ''}"""
+                    annotation.neutral_loss
+                    if annotation.neutral_loss is not None
+                    else ""
+                }"""
             ]
         )
 
@@ -390,8 +392,10 @@ def test_get_theoretical_fragments_mod_neutral_loss():
         assert fragment_mz == pytest.approx(
             fragments[
                 f"""{annotation.ion_type}^{annotation.charge}{
-                annotation.neutral_loss if annotation.neutral_loss is not None
-                else ''}"""
+                    annotation.neutral_loss
+                    if annotation.neutral_loss is not None
+                    else ""
+                }"""
             ]
         )
 
