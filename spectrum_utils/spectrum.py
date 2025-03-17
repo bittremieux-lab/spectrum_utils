@@ -653,22 +653,23 @@ class MsmsSpectrum:
         (since parsing the sequence is a lot slower than annotating the
         peaks).
 
-        --- from spectrum_utils.spectrum import MsmsSpectrum
-        --- identifier = "test_spec"
-        --- precursor_mz = 500.0
-        --- precursor_charge = 2
-        --- mz_array = np.array([100.0, 200.0, 300.0])
-        --- intensity_array = np.array([10.0, 20.0, 30.0])
+        >>> import spectrum_utils.spectrum as sus
+        >>> identifier = "test_spec"
+        >>> precursor_mz = 500.0
+        >>> precursor_charge = 2
+        >>> mz_array = np.array([100.0, 200.0, 300.0])
+        >>> intensity_array = np.array([10.0, 20.0, 30.0])
 
-
-        --- MsmsSpectrum(identifier, precursor_mz, precursor_charge, mz_array, intensity_array)
-        --- proforma_sequence = "MYPEPTIDEK/2"
-        --- MsmsSpectrum.annotate_proforma(proforma_str =proforma_sequence, fragment_tol_mass=10.0, fragment_tol_mode ='ppm', ion_types="by")
+        >>> spec = sus.MsmsSpectrum(identifier, precursor_mz, precursor_charge, mz_array, intensity_array)
+        >>> proforma_sequence = "MYPEPTIDEK/2"
+        >>> _ = spec.annotate_proforma(proforma_str =proforma_sequence, fragment_tol_mass=10.0, 
+        ...                                 fragment_tol_mode ="ppm", ion_types="by")
 
         --- or
 
-        --- parsed_proforma = proforma.parse(proforma_sequence)
-        --- MsmsSpectrum._annotate_proteoforms(parsed_proforma, proforma_str =proforma_sequence, fragment_tol_mass=10.0, fragment_tol_mode ='ppm', ion_types="by")
+        >>> parsed_proforma = proforma.parse(proforma_sequence)
+        >>> _ = spec._annotate_proteoforms(proteoforms=parsed_proforma, proforma_str =proforma_sequence,
+        ...                                 fragment_tol_mass=10.0, fragment_tol_mode ="ppm", ion_types="by")
 
 
         WARN:
@@ -721,11 +722,6 @@ class MsmsSpectrum:
                     > fragment_tol_mass
                 ):
                     fragment_i += 1
-
-                # If no more fragments are available, assign an empty annotation and continue.
-                if fragment_i >= len(fragments):
-                    self.annotation[peak_i] = pi
-                    continue
 
                 i = 0
                 while (

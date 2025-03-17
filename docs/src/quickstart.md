@@ -39,7 +39,7 @@ Instead you can use excellent libraries to read a variety of mass spectrometry d
 
 # Plot the spectrum.
 >>> fig, ax = plt.subplots(figsize=(12, 6))
->>> _=sup.spectrum(spectrum, grid=False, ax=ax);
+>>> sup.spectrum(spectrum, grid=False, ax=ax)
 >>> ax.spines["right"].set_visible(False)
 >>> ax.spines["top"].set_visible(False)
 >>> plt.savefig("quickstart.png", bbox_inches="tight", dpi=300, transparent=True)
