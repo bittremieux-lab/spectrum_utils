@@ -205,8 +205,16 @@ class FragmentAnnotation:
             return "".join(annot_str)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, FragmentAnnotation) and str(self) == str(
-            other
+        if not isinstance(other, FragmentAnnotation):
+            return False
+        return (
+            self.ion_type == other.ion_type
+            and self.neutral_loss == other.neutral_loss
+            and self.isotope == other.isotope
+            and self.charge == other.charge
+            and self.adduct == other.adduct
+            and self.analyte_number == other.analyte_number
+            and self.mz_delta == other.mz_delta
         )
 
 
@@ -408,7 +416,7 @@ def get_theoretical_fragments(
                     (
                         fragment_sequence,
                         "b",
-                        f"{start_i+1}:{stop_i+1}",
+                        f"{start_i + 1}:{stop_i + 1}",
                         mod_mass,
                     )
                 )
